@@ -1,0 +1,16 @@
+# Local configuration and credentials
+model-router.config.json
+.env
+.env.*
+!.env.example
+
+# Local telemetry and generated reports
+*.telemetry.jsonl
+model-router.telemetry.jsonl
+dashboard/qa-*.png
+dashboard/*.local.json
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.vscode/
