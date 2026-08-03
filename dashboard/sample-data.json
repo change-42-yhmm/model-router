@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-08-03T13:45:00+08:00",
+  "strategies": [
+    {"id":"fixed_fast","name":{"zh":"单一 Fast","en":"Fixed Fast"},"durationSec":1200,"modelSec":1090,"toolSec":110,"switchSec":0,"approvalWaitSec":0,"costUsd":0.079},
+    {"id":"fixed_balanced","name":{"zh":"单一 Balanced","en":"Fixed Balanced"},"durationSec":1320,"modelSec":1215,"toolSec":105,"switchSec":0,"approvalWaitSec":0,"costUsd":0.193},
+    {"id":"fixed_deep","name":{"zh":"单一 Deep","en":"Fixed Deep"},"durationSec":1595,"modelSec":1440,"toolSec":155,"switchSec":0,"approvalWaitSec":0,"costUsd":0.552},
+    {"id":"router","name":{"zh":"使用 Skill 路由","en":"Skill routing"},"durationSec":1258,"modelSec":969,"toolSec":170,"switchSec":42,"approvalWaitSec":77,"costUsd":0.277}
+  ],
+  "projects": [
+    {
+      "id": "app-launch",
+      "name": {"zh":"设计 App 并准备上架","en":"Design and launch an app"},
+      "scope": {"zh":"移动端产品 · 9 个交付物","en":"Mobile product · 9 deliverables"},
+      "description": {"zh":"从需求梳理、关键页面设计到商店素材与上架文案，确保交付物能被真实用户理解和验证。","en":"From requirements and key screens to store assets and release copy, create deliverables users can understand and validate."},
+      "before": {"durationSec":1080,"costUsd":0.296}, "after": {"durationSec":774,"costUsd":0.112},
+      "steps": [
+        {"title":{"zh":"梳理用户任务与上架约束","en":"Scope user jobs and store constraints"},"scope":{"zh":"用户故事 + 商店规则摘要","en":"User stories + store-rule summary"},"tier":"tool"},
+        {"title":{"zh":"设计核心流程与关键页面","en":"Design core flow and key screens"},"scope":{"zh":"流程摘要 + 组件契约","en":"Flow summary + component contract"},"tier":"balanced"},
+        {"title":{"zh":"生成商店文案与素材清单","en":"Draft store copy and asset checklist"},"scope":{"zh":"已确认卖点 + 目标地区","en":"Approved value props + locale"},"tier":"fast"},
+        {"title":{"zh":"无障碍、文案与上架核对","en":"Check accessibility, copy and submission"},"scope":{"zh":"检查表 + 目标页面","en":"Checklist + target screens"},"tier":"tool"}
+      ]
+    },
+    {
+      "id": "game-design",
+      "name": {"zh":"设计一款可玩的小游戏","en":"Design a playable game"},
+      "scope": {"zh":"网页游戏原型 · 8 个文件","en":"Web-game prototype · 8 files"},
+      "description": {"zh":"定义核心玩法、关卡节奏、反馈与可运行原型；复杂平衡问题只在试玩验证失败后升级推理。","en":"Define core play, level rhythm, feedback, and a runnable prototype; escalate only when playtest validation fails."},
+      "before": {"durationSec":1320,"costUsd":0.411}, "after": {"durationSec":1038,"costUsd":0.229},
+      "steps": [
+        {"title":{"zh":"提取玩法目标与参考约束","en":"Extract gameplay goals and constraints"},"scope":{"zh":"设计简报 + 现有资产","en":"Design brief + existing assets"},"tier":"tool"},
+        {"title":{"zh":"规划核心循环与关卡节奏","en":"Plan core loop and level rhythm"},"scope":{"zh":"玩家目标 + 时长边界","en":"Player goal + duration bounds"},"tier":"balanced"},
+        {"title":{"zh":"试玩失败后调整数值平衡","en":"Adjust balance after failed playtest"},"scope":{"zh":"试玩记录 + 3 个系统","en":"Playtest notes + 3 systems"},"tier":"deep"},
+        {"title":{"zh":"构建原型并回归试玩","en":"Build prototype and replay test"},"scope":{"zh":"目标场景 + 验收清单","en":"Target scene + acceptance checklist"},"tier":"tool"}
+      ]
+    },
+    {
+      "id": "research-presentation",
+      "name": {"zh":"阅读论文资料并制作 PPT","en":"Read research and create a slide deck"},
+      "scope": {"zh":"12 篇资料 · 16 页演示稿","en":"12 sources · 16-slide deck"},
+      "description": {"zh":"从资料筛选、事实提取到论点结构和演示稿核对，避免把整包文献反复交给高推理模型。","en":"From source screening and fact extraction to narrative structure and slide checks, without repeatedly sending the entire reading pack to a high-reasoning model."},
+      "before": {"durationSec":1560,"costUsd":0.486}, "after": {"durationSec":1014,"costUsd":0.173},
+      "steps": [
+        {"title":{"zh":"检索资料并提取结构化摘要","en":"Search sources and extract structured summaries"},"scope":{"zh":"论文标题、摘要、关键表格","en":"Titles, abstracts and key tables"},"tier":"tool"},
+        {"title":{"zh":"建立论点、证据与引用映射","en":"Map claims, evidence and citations"},"scope":{"zh":"已筛选摘要 + 引用要求","en":"Selected summaries + citation rules"},"tier":"balanced"},
+        {"title":{"zh":"生成演示结构与逐页要点","en":"Draft slide structure and page notes"},"scope":{"zh":"论点大纲 + 受众目标","en":"Argument outline + audience goal"},"tier":"fast"},
+        {"title":{"zh":"核对引用、事实与叙事连贯性","en":"Check citations, facts and narrative flow"},"scope":{"zh":"演示稿草稿 + 来源索引","en":"Deck draft + source index"},"tier":"tool"}
+      ]
+    },
+    {
+      "id": "code-walkthrough",
+      "name": {"zh":"走查项目代码并给出修复建议","en":"Walk through project code and propose fixes"},
+      "scope": {"zh":"Web 项目 · 14 个相关文件","en":"Web project · 14 relevant files"},
+      "description": {"zh":"先锁定变更集、依赖链与现有测试，再对高风险跨模块问题升级分析，输出可验证的修复建议。","en":"First bound the change set, dependency chain and existing tests; escalate only for high-risk cross-module analysis and produce verifiable fixes."},
+      "before": {"durationSec":1740,"costUsd":0.612}, "after": {"durationSec":1176,"costUsd":0.251},
+      "steps": [
+        {"title":{"zh":"检索变更、依赖与现有检查","en":"Search changes, dependencies and existing checks"},"scope":{"zh":"变更集 + 依赖图 + 测试列表","en":"Change set + dependency graph + test list"},"tier":"tool"},
+        {"title":{"zh":"走查局部模块与接口契约","en":"Review bounded modules and contracts"},"scope":{"zh":"相关文件摘要 + 接口契约","en":"Relevant file summaries + contracts"},"tier":"balanced"},
+        {"title":{"zh":"分析高风险跨模块缺陷","en":"Analyze high-risk cross-module defects"},"scope":{"zh":"失败测试证据 + 调用链","en":"Failed test evidence + call chain"},"tier":"deep"},
+        {"title":{"zh":"运行定向测试并生成走查报告","en":"Run targeted tests and write review report"},"scope":{"zh":"修复建议 + 验收命令","en":"Fix proposal + acceptance commands"},"tier":"tool"}
+      ]
+    }
+  ]
+}

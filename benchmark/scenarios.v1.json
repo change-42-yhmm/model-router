@@ -1,0 +1,15 @@
+{
+  "version": "scenarios/v1",
+  "language": "Node.js",
+  "frozen": true,
+  "scenarios": [
+    {"id":"oss-cache-key","kind":"open_source_inspired_fixture","title":"Cache key invalidation","description":"Original fixture inspired by common cache-key regressions; no upstream source included.","acceptance":"node --test test/cache-key.test.mjs","complexity":2,"risk":"low"},
+    {"id":"oss-stream-cleanup","kind":"open_source_inspired_fixture","title":"Stream cleanup","description":"Original fixture inspired by event-stream resource cleanup bugs; no upstream source included.","acceptance":"node --test test/stream-cleanup.test.mjs","complexity":3,"risk":"medium"},
+    {"id":"oss-parser-edge","kind":"open_source_inspired_fixture","title":"Parser edge case","description":"Original fixture inspired by parser boundary defects; no upstream source included.","acceptance":"node --test test/parser-edge.test.mjs","complexity":3,"risk":"medium"},
+    {"id":"oss-promise-order","kind":"open_source_inspired_fixture","title":"Promise ordering","description":"Original fixture inspired by asynchronous ordering bugs; no upstream source included.","acceptance":"node --test test/promise-order.test.mjs","complexity":4,"risk":"high"},
+    {"id":"sim-cache-invalidation","kind":"simulated_multimodule","title":"Multi-module cache invalidation","description":"Synthetic service/cache/client compatibility task.","acceptance":"node --test test/cache-invalidation.test.mjs","complexity":4,"risk":"high"},
+    {"id":"sim-concurrency-race","kind":"simulated_multimodule","title":"Concurrent write race","description":"Synthetic queue/store/worker race condition task.","acceptance":"node --test test/concurrency-race.test.mjs","complexity":5,"risk":"high"},
+    {"id":"sim-migration-compat","kind":"simulated_multimodule","title":"Migration compatibility","description":"Synthetic schema migration with old-client compatibility task.","acceptance":"node --test test/migration-compat.test.mjs","complexity":5,"risk":"high"},
+    {"id":"sim-cross-module-refactor","kind":"simulated_multimodule","title":"Cross-module refactor","description":"Synthetic API/worker/CLI refactor task.","acceptance":"node --test test/cross-module-refactor.test.mjs","complexity":4,"risk":"medium"}
+  ]
+}

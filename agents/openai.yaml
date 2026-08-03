@@ -1,0 +1,4 @@
+interface:
+  display_name: "模型路由器"
+  short_description: "拆解任务、授权选模并控制 API 成本与风险。"
+  default_prompt: "使用 $model-router 为当前项目拆解任务、选择模型并生成授权路由计划。"

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Model Router Skill 项目收益仪表盘" />
+    <title>Model Router — Skill 项目收益</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="#overview" aria-label="Model Router">MR<span>·</span>LAB</a>
+        <nav aria-label="仪表盘导航"><a class="is-active" href="#overview" data-view="overview" data-i18n="overview">总览</a><a href="#projects" data-view="projects" data-i18n="projects">项目列表</a></nav>
+        <button id="language-toggle" class="language-toggle" type="button" aria-label="Switch to English">EN</button>
+      </header>
+
+      <section id="overview" class="view-panel is-active" aria-labelledby="page-title">
+        <div class="hero-grid">
+          <article class="hero-card panel">
+            <p class="eyebrow" data-i18n="overviewKicker">Skill 使用成效</p>
+            <h1 id="page-title" data-i18n-html="heroTitle">使用 Skill 后，<br />项目少花多少？</h1>
+            <p id="overview-description" class="hero-copy"></p>
+            <div class="hero-metrics" aria-label="总体节省数据"><div><span data-i18n="timeSaved">节省耗时</span><strong id="overview-time">—</strong></div><div><span data-i18n="tokenCostSaved">API token 等效成本</span><strong id="overview-cost">—</strong></div></div>
+            <div class="impact-illustration" aria-label="项目对比插画"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="route-dot dot-one"></div><div class="route-dot dot-two"></div><div class="route-dot dot-three"></div></div>
+          </article>
+          <article class="project-list-card panel">
+            <div class="panel-heading"><div><p class="eyebrow" data-i18n="projectsKicker">已使用该 Skill 的项目</p><h2 data-i18n="projectsTitle">项目收益</h2></div><span id="project-count" class="source-tag">—</span></div>
+            <div id="project-summary-list" class="project-summary-list"></div>
+          </article>
+        </div>
+        <section class="method-panel panel"><p class="eyebrow" data-i18n="howItWorks">收益如何产生</p><div class="method-grid"><p data-i18n="methodOne">先缩小任务与上下文范围</p><p data-i18n="methodTwo">工具验证优先，失败才升级</p><p data-i18n="methodThree">按项目价值分配推理预算</p></div></section>
+        <section class="chart-grid" aria-label="项目整体数据图表">
+          <article class="chart-panel panel wide"><div class="panel-heading"><div><p class="eyebrow" data-i18n="aggregateKicker">综合数据</p><h2 data-i18n="timeComposition">模型策略与阶段耗时</h2></div><span class="source-tag" data-i18n="simulated">模拟数据</span></div><div id="time-comparison" class="chart"></div></article>
+          <article class="chart-panel panel"><div class="panel-heading"><div><p class="eyebrow" data-i18n="efficiencyKicker">成本 × 耗时</p><h2 data-i18n="efficiencyTitle">项目效率象限</h2></div></div><div id="project-scatter" class="chart"></div></article>
+          <article class="chart-panel panel"><div class="panel-heading"><div><p class="eyebrow" data-i18n="savingKicker">最节省项目</p><h2 data-i18n="savingTitle">项目节省变化</h2></div></div><div id="project-heat" class="chart"></div></article>
+          <article class="chart-panel panel wide"><div class="panel-heading"><div><p class="eyebrow" data-i18n="stepsKicker">步骤与模型</p><h2 data-i18n="stepsChartTitle">最节省项目的执行路径</h2></div></div><div id="project-timeline" class="chart"></div></article>
+        </section>
+      </section>
+
+      <section id="projects" class="view-panel" aria-labelledby="projects-heading">
+        <div class="section-heading"><div><p class="eyebrow" data-i18n="projectsKicker">已使用该 Skill 的项目</p><h1 id="projects-heading" data-i18n="projectsHeading">项目列表</h1></div><p class="fine-print" data-i18n="projectsNote">每项数据均为本地模拟演示，不代表通用性能结论。</p></div>
+        <div id="project-cards" class="project-cards"></div>
+      </section>
+      <footer><span id="updated-at">—</span><span data-i18n="footerNote">耗时为端到端时长；成本为 API 等效估算。</span></footer>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

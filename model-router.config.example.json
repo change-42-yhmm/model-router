@@ -1,0 +1,42 @@
+{
+  "port": 8787,
+  "telemetryFile": "./model-router.telemetry.jsonl",
+  "routingPolicy": {
+    "requireBoundedScope": true,
+    "preferDeterministicTools": true,
+    "separateGenerationAndValidation": true,
+    "escalateOnlyAfterValidationFailure": true,
+    "maxGenerationAttemptsBeforeEscalation": 1,
+    "projectMemory": {
+      "enabled": true,
+      "directory": "./memory",
+      "files": ["architecture.md", "contracts.md", "decisions.md"]
+    },
+    "incrementalContext": {
+      "enabled": true,
+      "prefer": ["changed-file-summaries", "dependency-neighbors", "relevant-contracts", "necessary-source"],
+      "wholeRepositoryByDefault": false
+    },
+    "budgetByValue": {
+      "reversibleLowImpact": { "maxTier": "fast", "maxStepCost": 0.05 },
+      "standard": { "maxTier": "balanced" },
+      "irreversibleOrHighFailureCost": { "allowTier": "deep", "requiresExplicitRationale": true }
+    },
+    "modelSelectionEvidence": {
+      "requiredForAutomaticRouting": ["official-capabilities-and-pricing", "task-relevant-evaluation", "project-validation-or-telemetry", "cost-estimate", "latency-expectation", "capability-checks"],
+      "sources": {
+        "official": "https://developers.openai.com/api/docs/models/compare",
+        "market": "https://openrouter.ai/models",
+        "independent": "https://artificialanalysis.ai/models"
+      },
+      "maxPriceSnapshotAgeDays": 30,
+      "telemetryWindowDays": 30,
+      "preferProjectEvidenceOverExternalRankings": true
+    }
+  },
+  "models": [
+    { "id": "openai-fast", "provider": "openai", "type": "openai-responses", "model": "gpt-5.6-luna", "tiers": ["fast"], "reasoningEffort": "low", "contextTokens": 1050000, "inputPerMillion": 0.2, "cachedInputPerMillion": 0.02, "outputPerMillion": 1.2, "priceSnapshotAt": "2026-08-03", "baseUrl": "https://api.openai.com/v1", "apiKeyEnv": "OPENAI_API_KEY" },
+    { "id": "openai-balanced", "provider": "openai", "type": "openai-responses", "model": "gpt-5.6-terra", "tiers": ["balanced"], "reasoningEffort": "medium", "contextTokens": 1050000, "inputPerMillion": 2, "cachedInputPerMillion": 0.2, "outputPerMillion": 12, "priceSnapshotAt": "2026-08-03", "baseUrl": "https://api.openai.com/v1", "apiKeyEnv": "OPENAI_API_KEY" },
+    { "id": "openai-deep", "provider": "openai", "type": "openai-responses", "model": "gpt-5.6-sol", "tiers": ["deep"], "reasoningEffort": "high", "contextTokens": 1050000, "inputPerMillion": 5, "cachedInputPerMillion": 0.5, "outputPerMillion": 30, "priceSnapshotAt": "2026-08-03", "baseUrl": "https://api.openai.com/v1", "apiKeyEnv": "OPENAI_API_KEY" }
+  ]
+}

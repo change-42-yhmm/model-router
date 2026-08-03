@@ -1,0 +1,40 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.dirname(fileURLToPath(import.meta.url));
+const read = name => JSON.parse(fs.readFileSync(path.join(root, name), 'utf8'));
+const arg = (name, fallback) => process.argv.includes(name) ? process.argv[process.argv.indexOf(name) + 1] : fallback;
+const scenarios = read('scenarios.v1.json');
+const prices = read('price-card.v1.json');
+const strategies = ['fixed_fast', 'fixed_balanced', 'fixed_deep', 'router'];
+const tierFor = (strategy, c, step) => strategy === 'router' ? (step === 0 ? 'fast' : c >= 4 ? 'deep' : 'balanced') : strategy.replace('fixed_', '');
+const jitter = (s) => (([...s].reduce((n, c) => (n * 33 + c.charCodeAt(0)) % 1009, 7) % 17) - 8) / 100;
+const run = (scenario, strategy, replicate) => {
+  const c = scenario.complexity, j = jitter(`${scenario.id}:${strategy}:${replicate}`);
+  const tier = strategy.replace('fixed_', '');
+  const fastRisk = strategy === 'fixed_fast' && c >= 4;
+  const balancedRisk = strategy === 'fixed_balanced' && c === 5 && replicate === 2;
+  const passed = !(fastRisk || balancedRisk);
+  const retries = passed ? (fastRisk ? 1 : strategy === 'router' && c >= 4 ? 1 : 0) : 2;
+  const baseTokens = 700 + c * 420;
+  const stepCount = strategy === 'router' ? 3 : 1;
+  const steps = Array.from({ length: stepCount }, (_, i) => {
+    const modelTier = tierFor(strategy, c, i);
+    const input = Math.round((baseTokens / stepCount) * (i === 0 ? 0.78 : 0.61));
+    const output = Math.round(input * (modelTier === 'deep' ? 0.55 : 0.42));
+    return { stepId: `${scenario.id}-${i + 1}`, modelTier, attempt: 1, switchReason: strategy === 'router' && i > 0 ? 'complexity_requires_deep_reasoning' : 'strategy_default', contextTokensVisible: input, outputTokensVisible: output, verification: i === stepCount - 1 ? (passed ? 'passed' : 'failed') : 'passed' };
+  });
+  const input = steps.reduce((n, s) => n + s.contextTokensVisible, 0), output = steps.reduce((n, s) => n + s.outputTokensVisible, 0);
+  const execFactor = strategy === 'fixed_fast' ? 780 : strategy === 'fixed_balanced' ? 1130 : strategy === 'fixed_deep' ? 1820 : 1180;
+  const modelExecutionMs = Math.round(c * execFactor * (1 + j) + retries * 850);
+  const toolVerificationMs = 350 + c * 145;
+  const switchOverheadMs = strategy === 'router' ? 180 * (stepCount - 1) : 0;
+  const authorizationWaitMs = 0;
+  const cost = steps.reduce((sum, s) => sum + s.contextTokensVisible / 1e6 * prices.tiers[s.modelTier].inputPerMillion + s.outputTokensVisible / 1e6 * prices.tiers[s.modelTier].outputPerMillion, 0);
+  return { runId: `sim-${scenario.id}-${strategy}-${replicate}`, scenarioId: scenario.id, strategy, replicate, provenance: 'simulated', verification: { passed, firstAttemptPassed: passed && retries === 0, failureReason: passed ? null : 'simulated_quality_failure' }, metrics: { wallClockMs: modelExecutionMs + toolVerificationMs + switchOverheadMs + authorizationWaitMs, modelExecutionMs, toolVerificationMs, switchOverheadMs, authorizationWaitMs, retries, contextTokensVisible: input, outputTokensVisible: output, apiEquivalentCostUsd: Number(cost.toFixed(6)) }, steps };
+};
+const runs = scenarios.scenarios.flatMap(s => strategies.flatMap(strategy => [1, 2].map(replicate => run(s, strategy, replicate))));
+const output = { schemaVersion: 'benchmark-run/v1', generatedAt: '2026-08-03T00:00:00.000Z', provenance: 'simulated', priceCardVersion: prices.version, scenariosVersion: scenarios.version, runs };
+fs.writeFileSync(path.resolve(process.cwd(), arg('--out', 'runs.simulated.v1.json')), JSON.stringify(output, null, 2) + '\n');
+console.log(`Wrote ${runs.length} simulated runs. These are not real-performance evidence.`);

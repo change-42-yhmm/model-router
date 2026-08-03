@@ -1,0 +1,4 @@
+{
+  "version": "price-card/v1-2026-08-03", "currency": "USD", "disclaimer": "API-equivalent estimate only. Visible tokens only; excludes hidden reasoning tokens, caching, discounts, and subscription usage.",
+  "tiers": {"fast":{"inputPerMillion":0.4,"outputPerMillion":1.6},"balanced":{"inputPerMillion":2.5,"outputPerMillion":10},"deep":{"inputPerMillion":10,"outputPerMillion":40}}
+}

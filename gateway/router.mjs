@@ -1,0 +1,89 @@
+import fs from 'node:fs/promises';
+
+const DEFAULT_OUTPUT = { fast: 700, balanced: 1800, deep: 4000 };
+const HIGH_RISK = new Set(['publish', 'delete', 'permission', 'security']);
+
+export function visibleTokenProxy(value = '') {
+  // Deliberately excludes hidden reasoning. This is only an API-equivalent proxy.
+  return Math.ceil(String(value).trim().length / 4);
+}
+
+export function decomposeTask(task, provided = []) {
+  if (provided.length) return provided.map((step, index) => normalizeStep(step, index));
+  const deep = /math|algorithm|architecture|concurren|race|security|migration|数学|算法|架构|并发|竞态|安全|迁移/i.test(task);
+  return [
+    normalizeStep({ title: 'Inspect relevant files and constraints', tier: 'tool', validation: 'Identify bounded inputs and existing checks.' }, 0),
+    normalizeStep({ title: task, tier: deep ? 'deep' : 'balanced', risk: deep ? 'high' : 'medium', validation: 'Run the targeted tests or review checklist.' }, 1),
+    normalizeStep({ title: 'Verify the result and summarize reusable findings', tier: 'tool', validation: 'Run targeted validation and record the outcome.' }, 2)
+  ];
+}
+
+export function normalizeStep(step, index) {
+  const tier = ['tool', 'fast', 'balanced', 'deep'].includes(step.tier) ? step.tier : 'balanced';
+  return { id: step.id || `step-${index + 1}`, title: step.title || `Step ${index + 1}`, tier, risk: step.risk || (tier === 'deep' ? 'high' : 'low'), contextTokens: Number(step.contextTokens || 0), input: step.input || '', validation: step.validation || 'Define a targeted test, static check, or review rubric.', sideEffects: Array.isArray(step.sideEffects) ? step.sideEffects : [], selectionEvidence: step.selectionEvidence || null };
+}
+
+function estimate(model, step) {
+  const input = Math.max(step.contextTokens || 2000, 1);
+  const output = DEFAULT_OUTPUT[step.tier] || 1000;
+  return ((input * Number(model.inputPerMillion || 0)) + (output * Number(model.outputPerMillion || 0))) / 1_000_000;
+}
+
+function allowed(model, step, auth, spent) {
+  if (!model.tiers?.includes(step.tier)) return false;
+  if (step.contextTokens && model.contextTokens && step.contextTokens > model.contextTokens) return false;
+  if (auth.providers?.length && !auth.providers.includes(model.provider)) return false;
+  if (auth.models?.length && !auth.models.includes(model.id)) return false;
+  const cost = estimate(model, step);
+  return !(auth.maxStepCost != null && cost > auth.maxStepCost) && !(auth.maxProjectCost != null && spent + cost > auth.maxProjectCost);
+}
+
+function approvalNeeded(step, auth) {
+  const explicit = new Set(auth.approvedStepIds || []);
+  return step.sideEffects.some(value => HIGH_RISK.has(value)) ? !explicit.has(step.id) : auth.mode === 'per_step' && !explicit.has(step.id);
+}
+
+export function routePlan({ task, steps, models, authorization = {}, spent = 0, routingPolicy = {} }) {
+  const auth = { mode: 'per_step', ...authorization };
+  if (!['per_step', 'budget_auto', 'full_auto'].includes(auth.mode)) throw new Error('Authorization mode must be per_step, budget_auto, or full_auto.');
+  if (auth.expiresAt && Date.parse(auth.expiresAt) <= Date.now()) throw new Error('Authorization has expired.');
+  let projected = spent;
+  return decomposeTask(task, steps).map(step => {
+    const contextGuidance = routingPolicy.incrementalContext?.enabled
+      ? { mode: 'incremental', preferredSources: routingPolicy.incrementalContext.prefer || [], wholeRepositoryByDefault: false }
+      : undefined;
+    if (step.tier === 'tool') return { ...step, decision: 'tool', rationale: 'A deterministic tool can produce verifiable evidence without model-token cost.', contextGuidance };
+    if (step.sideEffects.some(value => (auth.blockedActions || []).includes(value))) return { ...step, decision: 'blocked', reason: 'This step contains an action prohibited by the current authorization.' };
+    const candidate = models.filter(model => allowed(model, step, auth, projected)).sort((a, b) => estimate(a, step) - estimate(b, step))[0];
+    if (!candidate) return { ...step, decision: 'blocked', reason: 'No authorized model satisfies this step’s tier, context, and budget constraints.' };
+    const estimatedCost = estimate(candidate, step); projected += estimatedCost;
+    const evidenceRequired = Boolean(routingPolicy.modelSelectionEvidence?.requiredForAutomaticRouting?.length);
+    const evidenceComplete = !evidenceRequired || Boolean(step.selectionEvidence?.official && step.selectionEvidence?.taskRelevant && step.selectionEvidence?.project && step.selectionEvidence?.costEstimate && step.selectionEvidence?.latencyExpectation && step.selectionEvidence?.capabilityChecks);
+    return {
+      ...step, decision: !evidenceComplete || approvalNeeded(step, auth) ? 'awaiting_approval' : 'authorized', contextGuidance,
+      model: { id: candidate.id, provider: candidate.provider, model: candidate.model, type: candidate.type, reasoningEffort: candidate.reasoningEffort }, estimatedCost,
+      advantage: step.tier === 'deep' ? 'This step needs deeper causal reasoning across ambiguous or high-risk constraints, increasing the chance of a testable first-pass hypothesis.' : step.tier === 'balanced' ? 'This model tier balances implementation quality with cost for a bounded, verifiable change.' : 'The task is explicit and bounded, so a fast model reduces cost and latency while validation protects quality.',
+      tradeoff: `Estimated cost is ${estimatedCost.toFixed(4)} in configured currency units; higher tiers may increase latency and output tokens.`,
+      riskIfNotEscalated: step.tier === 'deep' ? 'A lower tier may require more retries or miss cross-module reasoning.' : 'Use targeted validation to detect an insufficient result.',
+      escalationRule: routingPolicy.escalateOnlyAfterValidationFailure ? 'Escalate only after targeted validation fails or evidence remains insufficient.' : undefined,
+      evidenceStatus: evidenceComplete ? 'complete' : 'missing_selection_evidence',
+      validation: step.validation
+    };
+  });
+}
+
+export async function appendTelemetry(file, event) {
+  if (!file) return;
+  const safe = {
+    at: new Date().toISOString(), schemaVersion: '1.0', source: event.source || 'actual_gateway',
+    runId: event.runId, scenarioId: event.scenarioId, strategyId: event.strategyId, attempt: event.attempt,
+    stepId: event.stepId, modelId: event.modelId, modelVersion: event.modelVersion, provider: event.provider,
+    tier: event.tier, reasoningEffort: event.reasoningEffort, status: event.status, usage: event.usage,
+    visibleInputTokenProxy: event.visibleInputTokenProxy, visibleOutputTokenProxy: event.visibleOutputTokenProxy,
+    apiEquivalentCostUsd: event.apiEquivalentCostUsd, latencyMs: event.latencyMs,
+    switchFrom: event.switchFrom, switchOverheadMs: event.switchOverheadMs,
+    contextTransferTokens: event.contextTransferTokens, approvalWaitMs: event.approvalWaitMs,
+    validation: event.validation, failureReason: event.failureReason
+  };
+  await fs.appendFile(file, `${JSON.stringify(safe)}\n`, 'utf8');
+}

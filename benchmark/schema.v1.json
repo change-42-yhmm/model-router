@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "model-router-benchmark-run-v1",
+  "title": "Model Router benchmark run",
+  "type": "object",
+  "required": ["schemaVersion", "generatedAt", "provenance", "priceCardVersion", "scenariosVersion", "runs"],
+  "properties": {
+    "schemaVersion": {"const": "benchmark-run/v1"},
+    "generatedAt": {"type": "string"},
+    "provenance": {"enum": ["actual", "simulated"]},
+    "priceCardVersion": {"type": "string"},
+    "scenariosVersion": {"type": "string"},
+    "runs": {"type": "array", "items": {"$ref": "#/$defs/run"}}
+  },
+  "$defs": {
+    "run": {
+      "type": "object",
+      "required": ["runId", "scenarioId", "strategy", "replicate", "provenance", "verification", "metrics", "steps"],
+      "properties": {
+        "runId": {"type": "string"}, "scenarioId": {"type": "string"},
+        "strategy": {"enum": ["fixed_fast", "fixed_balanced", "fixed_deep", "router"]},
+        "replicate": {"type": "integer", "minimum": 1}, "provenance": {"enum": ["actual", "simulated"]},
+        "verification": {"type": "object", "required": ["passed", "firstAttemptPassed", "failureReason"], "properties": {"passed": {"type": "boolean"}, "firstAttemptPassed": {"type": "boolean"}, "failureReason": {"type": ["string", "null"]}}},
+        "metrics": {"type": "object", "required": ["wallClockMs", "modelExecutionMs", "toolVerificationMs", "switchOverheadMs", "authorizationWaitMs", "retries", "contextTokensVisible", "outputTokensVisible", "apiEquivalentCostUsd"], "properties": {"wallClockMs": {"type": "number"}, "modelExecutionMs": {"type": "number"}, "toolVerificationMs": {"type": "number"}, "switchOverheadMs": {"type": "number"}, "authorizationWaitMs": {"type": "number"}, "retries": {"type": "integer"}, "contextTokensVisible": {"type": "number"}, "outputTokensVisible": {"type": "number"}, "apiEquivalentCostUsd": {"type": "number"}}},
+        "steps": {"type": "array"}
+      }
+    }
+  }
+}
