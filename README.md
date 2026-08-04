@@ -27,7 +27,13 @@ node scripts/route-plan.mjs request.json model-router.config.json
 node gateway/server.mjs --config model-router.config.json
 ```
 
-5. 任务完成后，启动任意静态文件服务器并打开 `dashboard/index.html`。仪表盘在 `总览` 中展示策略和阶段用时，在 `项目列表` 中展示每个项目的前后对比、步骤、最小上下文与模型层级。
+5. 任务完成后，启动本地仪表盘：
+
+```powershell
+node scripts/serve-dashboard.mjs
+```
+
+然后打开 `http://127.0.0.1:8765`。可通过 `node scripts/serve-dashboard.mjs 9000` 指定端口。仪表盘在 `总览` 中展示策略和阶段用时，在 `项目列表` 中展示每个项目的前后对比、步骤、最小上下文与模型层级。
 
 ## 如何阅读仪表盘
 

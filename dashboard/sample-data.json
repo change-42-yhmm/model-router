@@ -6,6 +6,39 @@
     {"id":"fixed_deep","name":{"zh":"单一 Deep","en":"Fixed Deep"},"durationSec":1595,"modelSec":1440,"toolSec":155,"switchSec":0,"approvalWaitSec":0,"costUsd":0.552},
     {"id":"router","name":{"zh":"使用 Skill 路由","en":"Skill routing"},"durationSec":1258,"modelSec":969,"toolSec":170,"switchSec":42,"approvalWaitSec":77,"costUsd":0.277}
   ],
+  "decisionFramework": {
+    "snapshotAt": "2026-08-04",
+    "principles": [
+      {"id":"bound","title":{"zh":"先缩小问题，再调用模型","en":"Bound the problem before calling a model"},"detail":{"zh":"先拆任务、锁定文件范围、提取依赖和接口；最小上下文不足时才逐层扩展。减少问题规模通常比直接换模型更省 token。","en":"Decompose work, bound files, and extract dependencies and contracts. Expand context only when the minimum is insufficient; smaller problems usually save more tokens than switching models."}},
+      {"id":"tools","title":{"zh":"确定性工具优先","en":"Deterministic tools first"},"detail":{"zh":"搜索、测试、静态检查和结构化提取先产生可验证事实；它们不消耗模型 token，也能减少模型猜测。","en":"Search, tests, static checks, and structured extraction establish verifiable facts first; they avoid model-token use and reduce guessing."}},
+      {"id":"validate","title":{"zh":"生成与验证分离，失败才升级","en":"Separate generation from validation; escalate on evidence"},"detail":{"zh":"先用 fast 或 balanced 生成候选，运行定向验收；只有失败、证据不足、跨模块因果复杂或高失败成本时才升级 deep。","en":"Generate with fast or balanced first and run targeted acceptance checks. Escalate to deep only after failure, insufficient evidence, complex cross-module causality, or high failure cost."}}
+    ],
+    "dimensions": [
+      {"title":{"zh":"任务能力匹配","en":"Task-capability fit"},"detail":{"zh":"使用与实际任务相近的评测；外部榜单只用于候选筛选，不能替代项目验收。","en":"Use task-relevant evaluations; external rankings only screen candidates and never replace project acceptance."}},
+      {"title":{"zh":"官方能力与价格","en":"Official capability and pricing"},"detail":{"zh":"核对上下文、工具、结构化输出、多模态、地区与价格快照；快照超过 30 天不用于自动预算。","en":"Verify context, tools, structured output, multimodality, region, and current pricing; snapshots older than 30 days cannot drive automatic budgets."}},
+      {"title":{"zh":"时延与吞吐","en":"Latency and throughput"},"detail":{"zh":"交互任务看首 token，批量任务看端到端与输出速度；思考时间也计入总时长。","en":"Compare time to first token for interactive work and end-to-end/output speed for batch work; thinking time counts."}},
+      {"title":{"zh":"上下文与工具可行性","en":"Context and tool feasibility"},"detail":{"zh":"验证 JSON、函数调用、流式、限流与超时；大上下文窗口不等于默认发送全仓库。","en":"Check JSON, function calls, streaming, limits, and timeouts; a large context window never means sending the whole repository by default."}},
+      {"title":{"zh":"供应商运行质量","en":"Provider operating quality"},"detail":{"zh":"同一模型在不同供应商的价格、缓存、时延和功能可能不同；用近 7–30 天遥测校正选择。","en":"The same model may differ by provider in price, caching, latency, and features; correct choices with 7–30 day telemetry."}},
+      {"title":{"zh":"项目内结果与风险","en":"Project evidence and risk"},"detail":{"zh":"定向测试、人工审查、重试和回滚风险优先级最高；不可逆或高失败成本才允许预算例外。","en":"Targeted tests, human review, retries, and rollback risk take priority; only irreversible or high-cost failures justify budget exceptions."}}
+    ],
+    "deepseek": [
+      {"model":"DeepSeek V4 Flash","tier":{"zh":"fast：非思考","en":"fast: non-thinking"},"use":{"zh":"范围清晰、低风险、可验证的生成或整理。","en":"Bounded, low-risk, verifiable drafting or organization."},"checks":{"zh":"使用官方 API；先确认 JSON/工具需求、价格快照和本地验证。","en":"Use the official API; confirm JSON/tool needs, price snapshot, and local validation first."}},
+      {"model":"DeepSeek V4 Flash","tier":{"zh":"balanced：思考","en":"balanced: thinking"},"use":{"zh":"常规实现、局部调试和有定向验收的分析。","en":"Routine implementation, bounded debugging, and analysis with targeted acceptance."},"checks":{"zh":"思考模式需要记录端到端时延与输出 token；涉及工具调用时保留 reasoning_content。","en":"Record end-to-end latency and output tokens; preserve reasoning_content across tool-call turns."}},
+      {"model":"DeepSeek V4 Pro","tier":{"zh":"deep：思考","en":"deep: thinking"},"use":{"zh":"跨模块因果、架构取舍、迁移或高失败成本问题。","en":"Cross-module causality, architecture trade-offs, migrations, or high failure-cost work."},"checks":{"zh":"只有 fast/balanced 验证失败或风险证明充分时升级，并要求授权与成本例外理由。","en":"Escalate only after fast/balanced validation fails or risk evidence warrants it, with authorization and cost rationale."}}
+    ],
+    "operationModes": [
+      {"mode":{"zh":"手动","en":"Manual"},"where":{"zh":"Codex、Cursor、自带网页/桌面聊天的模型选择器","en":"Codex, Cursor, and provider web/desktop model selectors"},"rule":{"zh":"Skill 输出推荐和验收条件；用户在宿主内切换，Skill 不控制会话模型。","en":"The Skill produces a recommendation and acceptance criteria; the user switches in the host, which the Skill cannot control."}},
+      {"mode":{"zh":"半自动","en":"Semi-automatic"},"where":{"zh":"本地 Model Router 网关 + per_step 授权","en":"Local Model Router gateway + per_step authorization"},"rule":{"zh":"网关生成计划；每一个模型步骤都需人工批准后，才调用已配置的 API。","en":"The gateway creates a plan; every model step requires human approval before the configured API is called."}},
+      {"mode":{"zh":"自动","en":"Automatic"},"where":{"zh":"本地 Model Router 网关 + budget_auto / full_auto","en":"Local Model Router gateway + budget_auto / full_auto"},"rule":{"zh":"仅限 API：白名单、密钥、预算、有效期与已有能力检查满足时可自动执行；证据可逐步补齐，缺失时降级为半自动/人工批准。发布、删除、权限与安全操作仍逐步批准。","en":"API only: allowlist, key, budget, expiry, and available capability checks are required. Evidence can be completed incrementally; missing evidence falls back to semi-automatic or manual approval. Publish, delete, permission, and security actions still require step approval."}}
+    ],
+    "radar": {"labels":{"zh":["能力匹配","官方资料","时延/吞吐","工具可行性","供应商质量","项目验证"],"en":["Task fit","Official data","Latency","Tool fit","Provider quality","Project validation"]},"values":[82,100,68,78,60,72]},
+    "sources": [
+      {"name":"OpenAI / Codex","kind":{"zh":"官方模型与 Codex 文档","en":"Official model and Codex docs"},"url":"https://developers.openai.com/api/docs/models/compare","status":{"zh":"刷新器可检查","en":"Refreshable"}},
+      {"name":"Anthropic / Claude","kind":{"zh":"官方模型说明","en":"Official model documentation"},"url":"https://docs.anthropic.com/en/docs/about-claude/models/overview","status":{"zh":"刷新器可检查","en":"Refreshable"}},
+      {"name":"DeepSeek","kind":{"zh":"官方价格与 API 能力","en":"Official pricing and API capabilities"},"url":"https://api-docs.deepseek.com/quick_start/pricing","status":{"zh":"刷新器可检查","en":"Refreshable"}},
+      {"name":"Artificial Analysis","kind":{"zh":"独立模型能力、价格与时延测评","en":"Independent capability, price, and latency evaluation"},"url":"https://artificialanalysis.ai/models","status":{"zh":"刷新器可检查","en":"Refreshable"}}
+    ]
+  },
   "projects": [
     {
       "id": "app-launch",

@@ -11,7 +11,11 @@
     <main class="shell">
       <header class="topbar">
         <a class="brand" href="#overview" aria-label="Model Router">MR<span>·</span>LAB</a>
-        <nav aria-label="仪表盘导航"><a class="is-active" href="#overview" data-view="overview" data-i18n="overview">总览</a><a href="#projects" data-view="projects" data-i18n="projects">项目列表</a></nav>
+        <nav aria-label="仪表盘导航">
+<a class="is-active" href="#overview" data-view="overview" data-i18n="overview">总览</a>
+<a href="#decisions" data-view="decisions" data-i18n="decisions">选择依据</a>
+<a href="#projects" data-view="projects" data-i18n="projects">项目列表</a>
+</nav>
         <button id="language-toggle" class="language-toggle" type="button" aria-label="Switch to English">EN</button>
       </header>
 
@@ -20,31 +24,227 @@
           <article class="hero-card panel">
             <p class="eyebrow" data-i18n="overviewKicker">Skill 使用成效</p>
             <h1 id="page-title" data-i18n-html="heroTitle">使用 Skill 后，<br />项目少花多少？</h1>
-            <p id="overview-description" class="hero-copy"></p>
-            <div class="hero-metrics" aria-label="总体节省数据"><div><span data-i18n="timeSaved">节省耗时</span><strong id="overview-time">—</strong></div><div><span data-i18n="tokenCostSaved">API token 等效成本</span><strong id="overview-cost">—</strong></div></div>
-            <div class="impact-illustration" aria-label="项目对比插画"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="route-dot dot-one"></div><div class="route-dot dot-two"></div><div class="route-dot dot-three"></div></div>
+            <p id="overview-description" class="hero-copy">
+</p>
+            <div class="hero-metrics" aria-label="总体节省数据">
+<div>
+<span data-i18n="timeSaved">节省耗时</span>
+<strong id="overview-time">—</strong>
+</div>
+<div>
+<span data-i18n="tokenCostSaved">API token 等效成本</span>
+<strong id="overview-cost">—</strong>
+</div>
+</div>
+            <div class="impact-illustration" aria-label="项目对比插画">
+<div class="orbit orbit-one">
+</div>
+<div class="orbit orbit-two">
+</div>
+<div class="route-dot dot-one">
+</div>
+<div class="route-dot dot-two">
+</div>
+<div class="route-dot dot-three">
+</div>
+</div>
           </article>
           <article class="project-list-card panel">
-            <div class="panel-heading"><div><p class="eyebrow" data-i18n="projectsKicker">已使用该 Skill 的项目</p><h2 data-i18n="projectsTitle">项目收益</h2></div><span id="project-count" class="source-tag">—</span></div>
-            <div id="project-summary-list" class="project-summary-list"></div>
+            <div class="panel-heading">
+<div>
+<p class="eyebrow" data-i18n="projectsKicker">已使用该 Skill 的项目</p>
+<h2 data-i18n="projectsTitle">项目收益</h2>
+</div>
+<span id="project-count" class="source-tag">—</span>
+</div>
+            <div id="project-summary-list" class="project-summary-list">
+</div>
           </article>
         </div>
-        <section class="method-panel panel"><p class="eyebrow" data-i18n="howItWorks">收益如何产生</p><div class="method-grid"><p data-i18n="methodOne">先缩小任务与上下文范围</p><p data-i18n="methodTwo">工具验证优先，失败才升级</p><p data-i18n="methodThree">按项目价值分配推理预算</p></div></section>
+        <section class="method-panel panel">
+<p class="eyebrow" data-i18n="howItWorks">收益如何产生</p>
+<div class="method-grid">
+<p data-i18n="methodOne">先缩小任务与上下文范围</p>
+<p data-i18n="methodTwo">工具验证优先，失败才升级</p>
+<p data-i18n="methodThree">按项目价值分配推理预算</p>
+</div>
+</section>
         <section class="chart-grid" aria-label="项目整体数据图表">
-          <article class="chart-panel panel wide"><div class="panel-heading"><div><p class="eyebrow" data-i18n="aggregateKicker">综合数据</p><h2 data-i18n="timeComposition">模型策略与阶段耗时</h2></div><span class="source-tag" data-i18n="simulated">模拟数据</span></div><div id="time-comparison" class="chart"></div></article>
-          <article class="chart-panel panel"><div class="panel-heading"><div><p class="eyebrow" data-i18n="efficiencyKicker">成本 × 耗时</p><h2 data-i18n="efficiencyTitle">项目效率象限</h2></div></div><div id="project-scatter" class="chart"></div></article>
-          <article class="chart-panel panel"><div class="panel-heading"><div><p class="eyebrow" data-i18n="savingKicker">最节省项目</p><h2 data-i18n="savingTitle">项目节省变化</h2></div></div><div id="project-heat" class="chart"></div></article>
-          <article class="chart-panel panel wide"><div class="panel-heading"><div><p class="eyebrow" data-i18n="stepsKicker">步骤与模型</p><h2 data-i18n="stepsChartTitle">最节省项目的执行路径</h2></div></div><div id="project-timeline" class="chart"></div></article>
+          <article class="chart-panel panel wide">
+<div class="panel-heading">
+<div>
+<p class="eyebrow" data-i18n="aggregateKicker">综合数据</p>
+<h2 data-i18n="timeComposition">模型策略与阶段耗时</h2>
+</div>
+<span class="source-tag" data-i18n="simulated">模拟数据</span>
+</div>
+<div id="time-comparison" class="chart">
+</div>
+</article>
+          <article class="chart-panel panel">
+<div class="panel-heading">
+<div>
+<p class="eyebrow" data-i18n="efficiencyKicker">成本 × 耗时</p>
+<h2 data-i18n="efficiencyTitle">项目效率象限</h2>
+</div>
+</div>
+<div id="project-scatter" class="chart">
+</div>
+</article>
+          <article class="chart-panel panel">
+<div class="panel-heading">
+<div>
+<p class="eyebrow" data-i18n="savingKicker">最节省项目</p>
+<h2 data-i18n="savingTitle">项目节省变化</h2>
+</div>
+</div>
+<div id="project-heat" class="chart">
+</div>
+</article>
+          <article class="chart-panel panel wide">
+<div class="panel-heading">
+<div>
+<p class="eyebrow" data-i18n="stepsKicker">步骤与模型</p>
+<h2 data-i18n="stepsChartTitle">最节省项目的执行路径</h2>
+</div>
+</div>
+<div id="project-timeline" class="chart">
+</div>
+</article>
         </section>
       </section>
 
-      <section id="projects" class="view-panel" aria-labelledby="projects-heading">
-        <div class="section-heading"><div><p class="eyebrow" data-i18n="projectsKicker">已使用该 Skill 的项目</p><h1 id="projects-heading" data-i18n="projectsHeading">项目列表</h1></div><p class="fine-print" data-i18n="projectsNote">每项数据均为本地模拟演示，不代表通用性能结论。</p></div>
-        <div id="project-cards" class="project-cards"></div>
+      <section id="decisions" class="view-panel" aria-labelledby="decisions-heading">
+        <div class="section-heading">
+<div>
+<p class="eyebrow" data-i18n="decisionKicker">可审计的模型选择</p>
+<h1 id="decisions-heading" data-i18n="decisionsHeading">为什么是这个模型？</h1>
+</div>
+<p class="fine-print" data-i18n="decisionsNote">从第一性原理出发：先减少问题规模，再用证据而不是模型名决定是否升级。</p>
+</div>
+        <section class="decision-principles" id="decision-principles">
+</section>
+        <section class="panel evidence-panel">
+<div class="panel-heading">
+<div>
+<p class="eyebrow" data-i18n="evidenceKicker">六维证据</p>
+<h2 data-i18n="evidenceHeading">自动路由前必须逐项满足</h2>
+</div>
+<span id="evidence-snapshot" class="source-tag">—</span>
+</div>
+<div class="evidence-visual">
+<div id="evidence-dimensions" class="evidence-grid">
+</div>
+<div class="radar-wrap">
+<div id="evidence-radar" class="chart">
+</div>
+<p class="fine-print" data-i18n="benchmarkNote">图形反映证据是否已刷新、适用且经本项目验证；具体 benchmark 数值由刷新器和可选解析器填充。</p>
+</div>
+</div>
+</section>
+        <section class="decision-grid">
+<article class="panel decision-panel">
+<div class="panel-heading">
+<div>
+<p class="eyebrow">DEEPSEEK</p>
+<h2 data-i18n="deepseekHeading">按任务选择，而非按名称选择</h2>
+</div>
+<span class="source-tag" data-i18n="officialApi">官方 API</span>
+</div>
+<p class="provider-meta">版本：DeepSeek V4 Flash / V4 Pro · 价格快照：2026-08-04 · Flash：$0.14 / $0.0028 / $0.28 · Pro：$0.435 / $0.003625 / $0.87（输入 / 缓存命中 / 输出，USD / 百万 token）</p>
+<div id="deepseek-models" class="decision-list">
+</div>
+</article>
+</section>
+        <section class="provider-grid" aria-label="供应商模型目录">
+<article class="panel provider-card">
+<span class="provider-mark openai">O</span>
+<p class="eyebrow">OPENAI / CODEX</p>
+<h2>GPT‑5.6 for Codex</h2>
+<p class="provider-meta">官方快照：2026-08-04 · API 入口：Responses API<br>价格顺序：输入 / 缓存命中 / 输出（USD / 百万 token）</p>
+<div class="model-price-head" aria-hidden="true"><span>模型</span><span>层级</span><span>输入</span><span>缓存</span><span>输出</span></div>
+<ul>
+<li><b>Luna</b><small>fast</small><strong>$0.20</strong><strong>$0.02</strong><strong>$1.20</strong></li>
+<li><b>Terra</b><small>balanced</small><strong>$2</strong><strong>$0.20</strong><strong>$12</strong></li>
+<li><b>Sol</b><small>deep</small><strong>$5</strong><strong>$0.50</strong><strong>$30</strong></li>
+</ul>
+<div class="cost-mini-chart"><span style="--h:18%"><i>Luna</i><b>$1.20</b></span><span style="--h:48%"><i>Terra</i><b>$12</b></span><span style="--h:100%"><i>Sol</i><b>$30</b></span></div>
+<p>输出单价快照对比；复杂编码与跨文件推理才升级。</p>
+</article>
+<article class="panel provider-card">
+<span class="provider-mark anthropic">A</span>
+<p class="eyebrow">ANTHROPIC / CLAUDE</p>
+<h2>Claude API</h2>
+<p class="provider-meta">官方快照：2026-08-04 · API 入口：Messages API<br>价格顺序：输入 / 缓存命中 / 输出（USD / 百万 token）</p>
+<div class="model-price-head" aria-hidden="true"><span>模型</span><span>层级</span><span>输入</span><span>缓存</span><span>输出</span></div>
+<ul>
+<li><b>Haiku 3.5</b><small>fast</small><strong>$0.80</strong><strong>$0.08</strong><strong>$4</strong></li>
+<li><b>Sonnet 4</b><small>balanced</small><strong>$3</strong><strong>$0.30</strong><strong>$15</strong></li>
+<li><b>Opus 4.1</b><small>deep</small><strong>$15</strong><strong>$1.50</strong><strong>$75</strong></li>
+</ul>
+<div class="cost-mini-chart"><span style="--h:20%"><i>Haiku</i><b>$4</b></span><span style="--h:46%"><i>Sonnet</i><b>$15</b></span><span style="--h:100%"><i>Opus</i><b>$75</b></span></div><p>输出单价快照对比；长上下文、工具成本与项目验收必须单独计入。</p>
+</article>
+<article class="panel provider-card">
+<span class="provider-mark deepseek">D</span>
+<p class="eyebrow">DEEPSEEK</p>
+<h2>DeepSeek V4</h2>
+<p class="provider-meta">官方快照：2026-08-04 · API 入口：OpenAI-compatible<br>价格顺序：输入 / 缓存命中 / 输出（USD / 百万 token）</p>
+<div class="model-price-head" aria-hidden="true"><span>模型</span><span>层级</span><span>输入</span><span>缓存</span><span>输出</span></div>
+<ul>
+<li><b>V4 Flash 非思考</b><small>fast</small><strong>$0.14</strong><strong>$0.0028</strong><strong>$0.28</strong></li>
+<li><b>V4 Flash 思考</b><small>balanced</small><strong>$0.14</strong><strong>$0.0028</strong><strong>$0.28</strong></li>
+<li><b>V4 Pro 思考</b><small>deep</small><strong>$0.435</strong><strong>$0.003625</strong><strong>$0.87</strong></li>
+</ul>
+<div class="cost-mini-chart"><span style="--h:32%"><i>Flash</i><b>$0.28</b></span><span style="--h:32%"><i>Flash 思考</i><b>$0.28</b></span><span style="--h:100%"><i>Pro</i><b>$0.87</b></span></div><p>输出单价快照对比；只在升级证据成立时使用 Pro。</p>
+</article>
+</section>
+        <section class="panel sources-panel">
+<div class="panel-heading">
+<div>
+<p class="eyebrow" data-i18n="sourceKicker">可联网刷新</p>
+<h2 data-i18n="sourceHeading">官方说明与独立测评来源</h2>
+</div>
+<span class="source-tag">refresh-model-evidence</span>
+</div>
+<div id="evidence-sources" class="evidence-grid">
+</div>
+</section>
+        <section class="panel operation-panel">
+<div class="panel-heading">
+<div>
+<p class="eyebrow" data-i18n="operationKicker">执行边界</p>
+<h2 data-i18n="operationHeading">手动、半自动与自动</h2>
+</div>
+</div>
+<div id="operation-modes" class="operation-grid">
+</div>
+</section>
       </section>
-      <footer><span id="updated-at">—</span><span data-i18n="footerNote">耗时为端到端时长；成本为 API 等效估算。</span></footer>
+
+      <section id="projects" class="view-panel" aria-labelledby="projects-heading">
+        <div class="section-heading">
+<div>
+<p class="eyebrow" data-i18n="projectsKicker">已使用该 Skill 的项目</p>
+<h1 id="projects-heading" data-i18n="projectsHeading">项目列表</h1>
+</div>
+<p class="fine-print" data-i18n="projectsNote">每项数据均为本地模拟演示，不代表通用性能结论。</p>
+</div>
+        <div class="project-workspace">
+          <aside class="project-index panel" aria-label="项目目录">
+            <p class="eyebrow">PROJECT INDEX</p>
+            <div id="project-index-list" class="project-index-list"></div>
+          </aside>
+          <div id="project-cards" class="project-cards"></div>
+        </div>
+      </section>
+      <footer>
+<span id="updated-at">—</span>
+<span data-i18n="footerNote">耗时为端到端时长；成本为 API 等效估算。</span>
+</footer>
     </main>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-    <script src="./app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js">
+</script>
+    <script src="./app.js">
+</script>
   </body>
 </html>

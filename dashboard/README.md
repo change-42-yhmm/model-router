@@ -4,7 +4,13 @@
 
 ## 打开方式
 
-从 `dashboard/` 目录启动任意静态文件服务器，然后打开 `index.html`。页面默认读取本地 `sample-data.json`；图表库从 jsDelivr 加载 ECharts 5.5.1，项目数据不会上传。
+从 Skill 根目录启动仪表盘服务，然后打开浏览器：
+
+```powershell
+node scripts/serve-dashboard.mjs
+```
+
+默认地址为 `http://127.0.0.1:8765`；传入端口号可覆盖默认值，例如 `node scripts/serve-dashboard.mjs 9000`。页面默认读取本地 `sample-data.json`；图表库从 jsDelivr 加载 ECharts 5.5.1，项目数据不会上传。
 
 ## 页面说明
 

@@ -63,6 +63,7 @@ description: "Decompose software work into small, verifiable steps; prefer deter
 - **OpenAI 官方模型比较与价格**：作为 OpenAI 模型的能力、特性、上下文和计费主来源。当前资料将 Sol 定义为复杂专业工作模型、Terra 定义为智能与成本的平衡、Luna 定义为成本敏感工作负载；但这些描述不构成自动升级许可，应继续由任务和验证决定。[官方模型比较](https://developers.openai.com/api/docs/models/compare)
 - **OpenRouter Models / Rankings**：用于交叉比较公开的价格、上下文、支持参数和真实使用/基准信号；排行榜是候选发现信息，不是质量保证，也不能覆盖本项目测试。[模型目录](https://openrouter.ai/models) [实时排行榜](https://openrouter.ai/rankings/)
 - **Artificial Analysis**：用于独立比较能力、每任务成本、首 token 时延、端到端时延、输出速度、上下文和特定任务评测。其综合指数应按任务类型拆看，并记录查询日期和指标定义。[模型比较与方法](https://artificialanalysis.ai/models)
+- **DeepSeek 官方模型、价格与 API 能力**：DeepSeek 候选必须从官方模型/价格页、思考模式和工具调用文档中确认。当前应使用 `deepseek-v4-flash` 或 `deepseek-v4-pro`，不要再把已退役的 `deepseek-chat` / `deepseek-reasoner` 当作可选模型名。两者均有思考/非思考模式：Flash 非思考适合 `fast`，Flash 思考适合经验证的 `balanced`，Pro 思考只在 `deep` 的失败证据或高失败成本成立时进入候选；最终仍以本项目定向验证、时延和完整请求成本决定。[模型与价格](https://api-docs.deepseek.com/quick_start/pricing) [思考模式](https://api-docs.deepseek.com/guides/thinking_mode) [工具调用](https://api-docs.deepseek.com/guides/tool_calls)
 
 ### 可执行的决策顺序
 
@@ -74,6 +75,20 @@ description: "Decompose software work into small, verifiable steps; prefer deter
 6. 将实际成功率、P50/P95 时延、可见 token 代理、实际价格版本、缓存命中率、失败与升级原因回写匿名遥测；周期性淘汰在本项目中表现不佳的候选。
 
 每个非 `tool` 步骤在计划中应包含：`selectionEvidence`（来源 URL、快照时间、指标和适用性）、`projectEvidence`（相关测试/遥测）、`costEstimate`（输入、输出、缓存、推理组成）、`latencyExpectation`、`capabilityChecks`、`riskClass` 与 `escalationTrigger`。任何字段缺失时，默认降级为“需要人工批准”，而不是自动执行。
+
+### 宿主与自动化边界
+
+| 场景 | 可选模型的操作方式 | 自动化边界 |
+| --- | --- | --- |
+| Codex、Cursor、DeepSeek 网页或桌面聊天 | Skill 输出推荐、最小上下文和验收条件；用户在宿主的模型选择器中手动切换 | 不可由本 Skill 更改正在运行的会话模型 |
+| 本地 Model Router 网关 + `per_step` | 网关生成路由计划，用户批准每个模型步骤后调用 API | 半自动；每一步均保留人工闸门 |
+| 本地 Model Router 网关 + `budget_auto` / `full_auto` | 仅调用已配置、已授权的供应商 API | 白名单、预算、有效期和已有能力检查通过后可自动；选择证据可逐步补齐，缺失时降级为半自动/人工批准。发布、删除、权限和安全操作仍逐步批准 |
+
+### 可扩展的联网证据
+
+证据不必在安装时一次性完整。`evidenceSources` 是可扩展来源清单，支持官方模型/价格/能力页、独立评测页和项目自建评测端点。运行 `node scripts/refresh-model-evidence.mjs model-router.config.json model-router.evidence.json` 会联网检查每个来源的可访问性、时间、内容类型、标题和内容哈希，生成可审计快照；它不臆造或抓取不稳定页面中的 benchmark 数值。
+
+新供应商或用户自定义模型可新增来源条目、模型目录项与可选解析器：解析器把可信字段映射到相同的六维 schema（能力、价格、时延、上下文/工具、运行质量、项目验证）。在没有官方 API、价格或评测字段时，路由器仍可给出候选与最小上下文/验收建议，但不把该步骤升级为无人工闸门的自动执行。
 
 ## 项目记忆
 
@@ -91,3 +106,15 @@ description: "Decompose software work into small, verifiable steps; prefer deter
 - `scripts/route-plan.mjs`：生成并校验路由计划。
 - `scripts/telemetry-summary.mjs`：汇总匿名执行记录。
 - `gateway/server.mjs`：本地 API 网关；仅在有效授权和环境变量密钥存在时执行请求。
+
+## 仪表盘
+
+任务完成后，运行以下命令启动本地仪表盘：
+
+```powershell
+node scripts/serve-dashboard.mjs
+```
+
+然后在浏览器打开 `http://127.0.0.1:8765`。需要使用其他端口时，将端口号作为参数传入，例如 `node scripts/serve-dashboard.mjs 9000`。
+
+仪表盘只读取本地 `dashboard/sample-data.json`；页面图表使用 ECharts CDN。不要在仪表盘数据中记录密钥、完整 prompt、源代码或个人数据。

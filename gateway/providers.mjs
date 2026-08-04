@@ -16,7 +16,10 @@ export async function runModel(model, step) {
     return { output: body.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('') || '', usage: body.usageMetadata || {}, raw: body, latencyMs: Math.round(performance.now() - started) };
   }
   if (model.type === 'openai-compatible') {
-    body = await request(`${base}/chat/completions`, { method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: model.model, messages: [{ role: 'user', content: step.input || step.title }] }) });
+    const payload = { model: model.model, messages: [{ role: 'user', content: step.input || step.title }] };
+    if (model.thinkingMode) payload.thinking = { type: model.thinkingMode };
+    if (model.reasoningEffort) payload.reasoning_effort = model.reasoningEffort;
+    body = await request(`${base}/chat/completions`, { method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     return { output: body.choices?.[0]?.message?.content || '', usage: body.usage || {}, raw: body, latencyMs: Math.round(performance.now() - started) };
   }
   throw new Error(`Unsupported provider type: ${model.type}`);
