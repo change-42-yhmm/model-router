@@ -30,3 +30,6 @@
 /* Keep tab state visible; hide only the overview and decision-page scroll tracks. */
 nav a.is-active{border-bottom-color:var(--lime)}
 @media(min-width:821px){#overview.is-active,#decisions.is-active{scrollbar-width:none}#overview.is-active::-webkit-scrollbar,#decisions.is-active::-webkit-scrollbar{display:none}}
+
+/* Hash navigation can focus a content section; it is not an interactive control. */
+.view-panel:focus{outline:none}
