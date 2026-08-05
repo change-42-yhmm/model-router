@@ -2,6 +2,8 @@ import fs from 'node:fs/promises';
 
 const DEFAULT_OUTPUT = { fast: 700, balanced: 1800, deep: 4000 };
 const HIGH_RISK = new Set(['publish', 'delete', 'permission', 'security']);
+const TIER_ORDER = ['fast', 'balanced', 'deep'];
+const PREFERENCES = new Set(['auto', 'speed', 'quality']);
 
 export function visibleTokenProxy(value = '') {
   // Deliberately excludes hidden reasoning. This is only an API-equivalent proxy.
@@ -21,6 +23,14 @@ export function decomposeTask(task, provided = []) {
 export function normalizeStep(step, index) {
   const tier = ['tool', 'fast', 'balanced', 'deep'].includes(step.tier) ? step.tier : 'balanced';
   return { id: step.id || `step-${index + 1}`, title: step.title || `Step ${index + 1}`, tier, risk: step.risk || (tier === 'deep' ? 'high' : 'low'), contextTokens: Number(step.contextTokens || 0), input: step.input || '', validation: step.validation || 'Define a targeted test, static check, or review rubric.', sideEffects: Array.isArray(step.sideEffects) ? step.sideEffects : [], selectionEvidence: step.selectionEvidence || null };
+}
+
+function preferredTier(step, preference) {
+  if (step.tier === 'tool' || preference === 'auto') return { tier: step.tier, applied: false };
+  const index = TIER_ORDER.indexOf(step.tier);
+  if (preference === 'speed' && step.risk === 'low' && index > 0) return { tier: TIER_ORDER[index - 1], applied: true };
+  if (preference === 'quality' && step.risk !== 'high' && index === 0) return { tier: 'balanced', applied: true };
+  return { tier: step.tier, applied: false };
 }
 
 function estimate(model, step) {
@@ -43,12 +53,16 @@ function approvalNeeded(step, auth) {
   return step.sideEffects.some(value => HIGH_RISK.has(value)) ? !explicit.has(step.id) : auth.mode === 'per_step' && !explicit.has(step.id);
 }
 
-export function routePlan({ task, steps, models, authorization = {}, spent = 0, routingPolicy = {} }) {
+export function routePlan({ task, steps, models, authorization = {}, spent = 0, routingPolicy = {}, preference }) {
   const auth = { mode: 'per_step', ...authorization };
+  const selectedPreference = preference ?? routingPolicy.defaultPreference ?? 'auto';
   if (!['per_step', 'budget_auto', 'full_auto'].includes(auth.mode)) throw new Error('Authorization mode must be per_step, budget_auto, or full_auto.');
+  if (!PREFERENCES.has(selectedPreference)) throw new Error('Preference must be auto, speed, or quality.');
   if (auth.expiresAt && Date.parse(auth.expiresAt) <= Date.now()) throw new Error('Authorization has expired.');
   let projected = spent;
-  return decomposeTask(task, steps).map(step => {
+  return decomposeTask(task, steps).map(originalStep => {
+    const tierChoice = preferredTier(originalStep, selectedPreference);
+    const step = tierChoice.applied ? { ...originalStep, tier: tierChoice.tier } : originalStep;
     const contextGuidance = routingPolicy.incrementalContext?.enabled
       ? { mode: 'incremental', preferredSources: routingPolicy.incrementalContext.prefer || [], wholeRepositoryByDefault: false }
       : undefined;
@@ -61,6 +75,10 @@ export function routePlan({ task, steps, models, authorization = {}, spent = 0, 
     const evidenceComplete = !evidenceRequired || Boolean(step.selectionEvidence?.official && step.selectionEvidence?.taskRelevant && step.selectionEvidence?.project && step.selectionEvidence?.costEstimate && step.selectionEvidence?.latencyExpectation && step.selectionEvidence?.capabilityChecks);
     return {
       ...step, decision: !evidenceComplete || approvalNeeded(step, auth) ? 'awaiting_approval' : 'authorized', contextGuidance,
+      requestedTier: originalStep.tier,
+      preference: selectedPreference,
+      preferenceApplied: tierChoice.applied,
+      preferenceNote: selectedPreference === 'auto' ? 'Automatic routing selected the tier from task capability, risk, and validation needs.' : tierChoice.applied ? `The ${selectedPreference} preference adjusted the candidate tier within the task’s safe capability envelope.` : `The ${selectedPreference} preference was retained, but task capability, risk, or validation requirements prevented a tier change.`,
       model: { id: candidate.id, provider: candidate.provider, model: candidate.model, type: candidate.type, reasoningEffort: candidate.reasoningEffort }, estimatedCost,
       advantage: step.tier === 'deep' ? 'This step needs deeper causal reasoning across ambiguous or high-risk constraints, increasing the chance of a testable first-pass hypothesis.' : step.tier === 'balanced' ? 'This model tier balances implementation quality with cost for a bounded, verifiable change.' : 'The task is explicit and bounded, so a fast model reduces cost and latency while validation protects quality.',
       tradeoff: `Estimated cost is ${estimatedCost.toFixed(4)} in configured currency units; higher tiers may increase latency and output tokens.`,
