@@ -8,6 +8,13 @@
     { "id": "artificial-analysis", "kind": "independent", "provider": "market", "url": "https://artificialanalysis.ai/models" }
   ],
   "routingPolicy": {
+    "defaultPreference": "auto",
+    "preferencePrecedence": ["safety-and-authorization", "task-capability-and-acceptance", "user-preference", "cost-and-latency"],
+    "preferenceModes": {
+      "auto": "Choose from task capability, risk, validation, budget, and recent telemetry.",
+      "speed": "Use one lower tier only for bounded low-risk work; never override required capability or acceptance.",
+      "quality": "Prefer a stronger first-pass candidate for low-risk fast work; never bypass evidence, authorization, or budget."
+    },
     "requireBoundedScope": true,
     "preferDeterministicTools": true,
     "separateGenerationAndValidation": true,

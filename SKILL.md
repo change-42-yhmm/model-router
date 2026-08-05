@@ -3,6 +3,14 @@ name: model-router
 description: "Decompose software work into small, verifiable steps; prefer deterministic tools; route only the minimum incremental context to an authorized model; and spend deeper reasoning only where failure cost warrants it. Use for multi-step implementation, debugging, refactoring, architecture, security review, or cross-provider routing."
 ---
 
+## 用户路由偏好
+
+请求可传 `preference: auto | speed | quality`，默认 `auto`。偏好是受约束的软目标，固定优先级为：**安全/授权 > 任务能力与验收 > 用户偏好 > 成本与时延**。
+
+- `speed` 只可为范围明确、低风险的工作降低一个候选档位。
+- `quality` 只可将低风险 `fast` 工作提升为 `balanced` 的首轮候选。
+- 任一偏好都不得覆盖高风险/深度推理需求、验收条件、选择证据、授权或预算。
+
 # 模型路由器
 
 先减少问题规模，再选择模型。这个 Skill 的目标不是尽可能多地调用高推理模型，而是在可验证的前提下，以最少的上下文、成本和等待时间完成任务。

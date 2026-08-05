@@ -12,11 +12,14 @@ node scripts/serve-dashboard.mjs
 
 默认地址为 `http://127.0.0.1:8765`；传入端口号可覆盖默认值，例如 `node scripts/serve-dashboard.mjs 9000`。页面默认读取本地 `sample-data.json`；图表库从 jsDelivr 加载 ECharts 5.5.1，项目数据不会上传。
 
+直接双击 `index.html` 使用 `file://` 协议时，浏览器会阻止页面读取 `sample-data.json`；请始终通过本地服务地址打开仪表盘。
+
 ## 页面说明
 
 - `总览`：展示使用 Skill 路由相对单一 Fast、Balanced、Deep 模式的阶段耗时；阶段包含模型执行、工具验证、模型切换和授权等待。
 - `项目列表`：展示项目名称、范围、使用前后耗时和 API token 等效成本、节省比例、每一步的最小上下文、模型/工具层级和验证状态。
 - `EN / 中文`：切换显示语言；也支持 `?lang=en`。
+- `选择依据 / 路由偏好`：在第一性原则之后比较 `auto`（默认）、`speed` 和 `quality` 三种受约束偏好；安全/授权、任务能力与验收始终优先于用户偏好。
 
 ## 接入真实数据
 

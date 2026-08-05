@@ -27,6 +27,16 @@ DeepSeek 官方 API 使用 `type: "openai-compatible"`、`baseUrl: "https://api.
 
 请求至少包含 `task`，也可给出 `steps`。步骤可指定 `title`、`tier`、`risk`、`contextTokens`、`input`、`validation` 和 `sideEffects`。
 
+## 用户偏好
+
+请求可包含 `preference`：`auto`（默认）、`speed` 或 `quality`。优先级固定为：**安全/授权 > 任务能力与验收 > 用户偏好 > 成本与时延**。
+
+- `auto`：由任务能力、风险、验收、预算和近期遥测决定。
+- `speed`：仅对范围明确且低风险的工作允许降低一个候选档位；不会降低 `deep`、高风险或验收要求所需的档位。
+- `quality`：将低风险 `fast` 工作优先提升为 `balanced` 的首轮候选；不会把所有任务直接升到 `deep`，也不会绕过证据、授权或预算。
+
+例如：`{ "task": "Format a bounded config change", "preference": "speed" }`。响应中的 `preferenceApplied` 与 `preferenceNote` 会说明偏好是否生效及原因。
+
 `authorization` 包含 `mode`、`expiresAt`、`providers`、`models`、`maxStepCost`、`maxProjectCost`、`approvedStepIds` 与 `blockedActions`。`per_step` 必须把待执行步骤 ID 放入 `approvedStepIds`；`budget_auto` 和 `full_auto` 必须同时满足全部预算与白名单限制。`publish`、`delete`、`permission`、`security` 永远要求对应步骤 ID 的显式批准。
 
 ## 平台边界
