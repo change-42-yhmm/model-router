@@ -53,7 +53,23 @@ function approvalNeeded(step, auth) {
   return step.sideEffects.some(value => HIGH_RISK.has(value)) ? !explicit.has(step.id) : auth.mode === 'per_step' && !explicit.has(step.id);
 }
 
-export function routePlan({ task, steps, models, authorization = {}, spent = 0, routingPolicy = {}, preference }) {
+function evidenceFreshness(model, policy, snapshot) {
+  const preflight = policy.modelSelectionEvidence?.preflightRefresh;
+  if (!preflight?.enabled) return { complete: true, reason: null };
+  if (!snapshot) return { complete: false, reason: 'missing_preflight_evidence' };
+  if (snapshot.catalogReviewRequired) return { complete: false, reason: 'model_catalog_review_required' };
+  const maxAgeMs = (preflight.maxAgeHours ?? 24) * 60 * 60 * 1000;
+  if (!snapshot.generatedAt || Date.now() - Date.parse(snapshot.generatedAt) > maxAgeMs) return { complete: false, reason: 'preflight_evidence_stale' };
+  const providerSource = (snapshot.sources || []).find(source => source.provider === model.provider && source.kind === 'official');
+  if (!providerSource?.ok) return { complete: false, reason: 'official_source_unavailable' };
+  const snapshotAgeMs = (policy.modelSelectionEvidence?.maxPriceSnapshotAgeDays ?? 30) * 24 * 60 * 60 * 1000;
+  const priceAt = Date.parse(model.priceSnapshotAt || '');
+  const capabilityAt = Date.parse(model.capabilitySnapshotAt || model.priceSnapshotAt || '');
+  if (!Number.isFinite(priceAt) || !Number.isFinite(capabilityAt) || Date.now() - priceAt > snapshotAgeMs || Date.now() - capabilityAt > snapshotAgeMs) return { complete: false, reason: 'model_price_or_capability_snapshot_stale' };
+  return { complete: true, reason: null };
+}
+
+export function routePlan({ task, steps, models, authorization = {}, spent = 0, routingPolicy = {}, preference, evidenceSnapshot }) {
   const auth = { mode: 'per_step', ...authorization };
   const selectedPreference = preference ?? routingPolicy.defaultPreference ?? 'auto';
   if (!['per_step', 'budget_auto', 'full_auto'].includes(auth.mode)) throw new Error('Authorization mode must be per_step, budget_auto, or full_auto.');
@@ -72,7 +88,9 @@ export function routePlan({ task, steps, models, authorization = {}, spent = 0, 
     if (!candidate) return { ...step, decision: 'blocked', reason: 'No authorized model satisfies this step’s tier, context, and budget constraints.' };
     const estimatedCost = estimate(candidate, step); projected += estimatedCost;
     const evidenceRequired = Boolean(routingPolicy.modelSelectionEvidence?.requiredForAutomaticRouting?.length);
-    const evidenceComplete = !evidenceRequired || Boolean(step.selectionEvidence?.official && step.selectionEvidence?.taskRelevant && step.selectionEvidence?.project && step.selectionEvidence?.costEstimate && step.selectionEvidence?.latencyExpectation && step.selectionEvidence?.capabilityChecks);
+    const selectionEvidenceComplete = !evidenceRequired || Boolean(step.selectionEvidence?.official && step.selectionEvidence?.taskRelevant && step.selectionEvidence?.project && step.selectionEvidence?.costEstimate && step.selectionEvidence?.latencyExpectation && step.selectionEvidence?.capabilityChecks);
+    const freshness = evidenceFreshness(candidate, routingPolicy, evidenceSnapshot);
+    const evidenceComplete = selectionEvidenceComplete && freshness.complete;
     return {
       ...step, decision: !evidenceComplete || approvalNeeded(step, auth) ? 'awaiting_approval' : 'authorized', contextGuidance,
       requestedTier: originalStep.tier,
@@ -84,7 +102,7 @@ export function routePlan({ task, steps, models, authorization = {}, spent = 0, 
       tradeoff: `Estimated cost is ${estimatedCost.toFixed(4)} in configured currency units; higher tiers may increase latency and output tokens.`,
       riskIfNotEscalated: step.tier === 'deep' ? 'A lower tier may require more retries or miss cross-module reasoning.' : 'Use targeted validation to detect an insufficient result.',
       escalationRule: routingPolicy.escalateOnlyAfterValidationFailure ? 'Escalate only after targeted validation fails or evidence remains insufficient.' : undefined,
-      evidenceStatus: evidenceComplete ? 'complete' : 'missing_selection_evidence',
+      evidenceStatus: evidenceComplete ? 'complete' : freshness.complete ? 'missing_selection_evidence' : freshness.reason,
       validation: step.validation
     };
   });

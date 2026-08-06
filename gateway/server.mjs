@@ -4,19 +4,26 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { appendTelemetry, routePlan, visibleTokenProxy } from './router.mjs';
 import { runModel } from './providers.mjs';
+import { refreshEvidence } from './evidence.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const flag = process.argv.indexOf('--config');
 const configPath = flag >= 0 ? process.argv[flag + 1] : path.join(here, '..', 'model-router.config.json');
 const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
 const modelById = new Map(config.models.map(model => [model.id, model]));
+async function preflightEvidence() {
+  const enabled = config.routingPolicy?.modelSelectionEvidence?.preflightRefresh?.enabled;
+  if (!enabled) return null;
+  const evidenceFile = path.resolve(path.dirname(configPath), config.evidenceFile || 'model-router.evidence.json');
+  return refreshEvidence({ sources: config.evidenceSources || [], outputPath: evidenceFile, catalogRevision: config.routingPolicy?.modelCatalogRevision });
+}
 function send(res, status, body) { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(body)); }
 async function read(req) { let body = ''; for await (const chunk of req) body += chunk; return body ? JSON.parse(body) : {}; }
 
 http.createServer(async (req, res) => {
   if (req.method !== 'POST' || !['/v1/route', '/v1/route-and-run'].includes(req.url)) return send(res, 404, { error: 'POST /v1/route or /v1/route-and-run only' });
   try {
-    const request = await read(req), plan = routePlan({ ...request, models: config.models, routingPolicy: config.routingPolicy });
+    const request = await read(req), evidenceSnapshot = await preflightEvidence(), plan = routePlan({ ...request, models: config.models, routingPolicy: config.routingPolicy, evidenceSnapshot });
     if (req.url === '/v1/route') return send(res, 200, { plan });
     const step = plan.find(item => item.decision === 'authorized');
     if (!step) return send(res, 409, { plan, error: 'No executable authorized model step. Approve a step or adjust constraints.' });
