@@ -1,6 +1,7 @@
 {
   "port": 8787,
   "telemetryFile": "./model-router.telemetry.jsonl",
+  "evidenceFile": "./model-router.evidence.json",
   "evidenceSources": [
     { "id": "openai-models", "kind": "official", "provider": "openai", "url": "https://developers.openai.com/api/docs/models/compare" },
     { "id": "anthropic-models", "kind": "official", "provider": "anthropic", "url": "https://docs.anthropic.com/en/docs/about-claude/models/overview" },
@@ -9,6 +10,7 @@
   ],
   "routingPolicy": {
     "defaultPreference": "auto",
+    "modelCatalogRevision": "2026-08-06",
     "preferencePrecedence": ["safety-and-authorization", "task-capability-and-acceptance", "user-preference", "cost-and-latency"],
     "preferenceModes": {
       "auto": "Choose from task capability, risk, validation, budget, and recent telemetry.",
@@ -44,16 +46,21 @@
         "independent": "https://artificialanalysis.ai/models"
       },
       "maxPriceSnapshotAgeDays": 30,
+      "preflightRefresh": {
+        "enabled": true,
+        "maxAgeHours": 24,
+        "onSourceChange": "require_manual_catalog_review"
+      },
       "telemetryWindowDays": 30,
       "preferProjectEvidenceOverExternalRankings": true
     }
   },
   "models": [
-    { "id": "openai-fast", "provider": "openai", "type": "openai-responses", "model": "gpt-5.6-luna", "tiers": ["fast"], "reasoningEffort": "low", "contextTokens": 1050000, "inputPerMillion": 0.2, "cachedInputPerMillion": 0.02, "outputPerMillion": 1.2, "priceSnapshotAt": "2026-08-03", "baseUrl": "https://api.openai.com/v1", "apiKeyEnv": "OPENAI_API_KEY" },
-    { "id": "openai-balanced", "provider": "openai", "type": "openai-responses", "model": "gpt-5.6-terra", "tiers": ["balanced"], "reasoningEffort": "medium", "contextTokens": 1050000, "inputPerMillion": 2, "cachedInputPerMillion": 0.2, "outputPerMillion": 12, "priceSnapshotAt": "2026-08-03", "baseUrl": "https://api.openai.com/v1", "apiKeyEnv": "OPENAI_API_KEY" },
-    { "id": "openai-deep", "provider": "openai", "type": "openai-responses", "model": "gpt-5.6-sol", "tiers": ["deep"], "reasoningEffort": "high", "contextTokens": 1050000, "inputPerMillion": 5, "cachedInputPerMillion": 0.5, "outputPerMillion": 30, "priceSnapshotAt": "2026-08-03", "baseUrl": "https://api.openai.com/v1", "apiKeyEnv": "OPENAI_API_KEY" }
-    ,{ "id": "deepseek-flash", "provider": "deepseek", "type": "openai-compatible", "model": "deepseek-v4-flash", "tiers": ["fast"], "thinkingMode": "disabled", "contextTokens": 1000000, "inputPerMillion": 0.14, "cachedInputPerMillion": 0.0028, "outputPerMillion": 0.28, "priceSnapshotAt": "2026-08-04", "baseUrl": "https://api.deepseek.com", "apiKeyEnv": "DEEPSEEK_API_KEY" }
-    ,{ "id": "deepseek-flash-thinking", "provider": "deepseek", "type": "openai-compatible", "model": "deepseek-v4-flash", "tiers": ["balanced"], "thinkingMode": "enabled", "reasoningEffort": "high", "contextTokens": 1000000, "inputPerMillion": 0.14, "cachedInputPerMillion": 0.0028, "outputPerMillion": 0.28, "priceSnapshotAt": "2026-08-04", "baseUrl": "https://api.deepseek.com", "apiKeyEnv": "DEEPSEEK_API_KEY" }
-    ,{ "id": "deepseek-pro-thinking", "provider": "deepseek", "type": "openai-compatible", "model": "deepseek-v4-pro", "tiers": ["deep"], "thinkingMode": "enabled", "reasoningEffort": "high", "contextTokens": 1000000, "inputPerMillion": 0.435, "cachedInputPerMillion": 0.003625, "outputPerMillion": 0.87, "priceSnapshotAt": "2026-08-04", "baseUrl": "https://api.deepseek.com", "apiKeyEnv": "DEEPSEEK_API_KEY" }
+    { "id": "openai-fast", "provider": "openai", "type": "openai-responses", "model": "gpt-5.6-luna", "tiers": ["fast"], "reasoningEffort": "low", "contextTokens": 1050000, "inputPerMillion": 0.2, "cachedInputPerMillion": 0.02, "outputPerMillion": 1.2, "priceSnapshotAt": "2026-08-06", "capabilitySnapshotAt": "2026-08-06", "baseUrl": "https://api.openai.com/v1", "apiKeyEnv": "OPENAI_API_KEY" },
+    { "id": "openai-balanced", "provider": "openai", "type": "openai-responses", "model": "gpt-5.6-terra", "tiers": ["balanced"], "reasoningEffort": "medium", "contextTokens": 1050000, "inputPerMillion": 2, "cachedInputPerMillion": 0.2, "outputPerMillion": 12, "priceSnapshotAt": "2026-08-06", "capabilitySnapshotAt": "2026-08-06", "baseUrl": "https://api.openai.com/v1", "apiKeyEnv": "OPENAI_API_KEY" },
+    { "id": "openai-deep", "provider": "openai", "type": "openai-responses", "model": "gpt-5.6-sol", "tiers": ["deep"], "reasoningEffort": "high", "contextTokens": 1050000, "inputPerMillion": 5, "cachedInputPerMillion": 0.5, "outputPerMillion": 30, "priceSnapshotAt": "2026-08-06", "capabilitySnapshotAt": "2026-08-06", "baseUrl": "https://api.openai.com/v1", "apiKeyEnv": "OPENAI_API_KEY" }
+    ,{ "id": "deepseek-flash", "provider": "deepseek", "type": "openai-compatible", "model": "deepseek-v4-flash", "tiers": ["fast"], "thinkingMode": "disabled", "contextTokens": 1000000, "inputPerMillion": 0.14, "cachedInputPerMillion": 0.0028, "outputPerMillion": 0.28, "priceSnapshotAt": "2026-08-06", "capabilitySnapshotAt": "2026-08-06", "baseUrl": "https://api.deepseek.com", "apiKeyEnv": "DEEPSEEK_API_KEY" }
+    ,{ "id": "deepseek-flash-thinking", "provider": "deepseek", "type": "openai-compatible", "model": "deepseek-v4-flash", "tiers": ["balanced"], "thinkingMode": "enabled", "reasoningEffort": "high", "contextTokens": 1000000, "inputPerMillion": 0.14, "cachedInputPerMillion": 0.0028, "outputPerMillion": 0.28, "priceSnapshotAt": "2026-08-06", "capabilitySnapshotAt": "2026-08-06", "baseUrl": "https://api.deepseek.com", "apiKeyEnv": "DEEPSEEK_API_KEY" }
+    ,{ "id": "deepseek-pro-thinking", "provider": "deepseek", "type": "openai-compatible", "model": "deepseek-v4-pro", "tiers": ["deep"], "thinkingMode": "enabled", "reasoningEffort": "high", "contextTokens": 1000000, "inputPerMillion": 0.435, "cachedInputPerMillion": 0.003625, "outputPerMillion": 0.87, "priceSnapshotAt": "2026-08-06", "capabilitySnapshotAt": "2026-08-06", "baseUrl": "https://api.deepseek.com", "apiKeyEnv": "DEEPSEEK_API_KEY" }
   ]
 }

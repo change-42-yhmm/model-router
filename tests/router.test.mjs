@@ -31,5 +31,12 @@ const quality = routePlan({ ...base, preference: 'quality', steps: [{ title: 'Dr
 assert.equal(quality[0].tier, 'balanced'); assert.equal(quality[0].preferenceApplied, true);
 assert.equal(quality[1].tier, 'deep'); assert.equal(quality[1].preferenceApplied, false);
 assert.throws(() => routePlan({ ...base, preference: 'cheapest' }), /Preference must be/);
+const preflightPolicy = { modelSelectionEvidence: { preflightRefresh: { enabled: true, maxAgeHours: 24 }, maxPriceSnapshotAgeDays: 30 } };
+const freshEvidence = { generatedAt: new Date().toISOString(), catalogReviewRequired: false, sources: [{ provider: 'p', kind: 'official', ok: true }] };
+const freshModels = models.map(model => ({ ...model, priceSnapshotAt: new Date().toISOString(), capabilitySnapshotAt: new Date().toISOString() }));
+const preflightApproved = routePlan({ ...base, models: freshModels, routingPolicy: preflightPolicy, evidenceSnapshot: freshEvidence });
+assert.equal(preflightApproved[1].decision, 'authorized');
+const reviewRequired = routePlan({ ...base, models: freshModels, routingPolicy: preflightPolicy, evidenceSnapshot: { ...freshEvidence, catalogReviewRequired: true } });
+assert.equal(reviewRequired[1].decision, 'awaiting_approval'); assert.equal(reviewRequired[1].evidenceStatus, 'model_catalog_review_required');
 assert.equal(visibleTokenProxy('12345678'), 2);
 console.log('router tests passed');

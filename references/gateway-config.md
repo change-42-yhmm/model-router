@@ -37,6 +37,12 @@ DeepSeek 官方 API 使用 `type: "openai-compatible"`、`baseUrl: "https://api.
 
 例如：`{ "task": "Format a bounded config change", "preference": "speed" }`。响应中的 `preferenceApplied` 与 `preferenceNote` 会说明偏好是否生效及原因。
 
+## 运行前模型证据检查
+
+将 `routingPolicy.modelSelectionEvidence.preflightRefresh.enabled` 设为 `true` 后，CLI 与本地网关会在每次路由前刷新 `evidenceSources`，并写入 `evidenceFile`。自动路由会在以下任一条件成立时返回 `awaiting_approval`：官方来源不可用、刷新结果超过 `maxAgeHours`、模型的 `priceSnapshotAt` 或 `capabilitySnapshotAt` 超过允许时限，或官方页面内容哈希变化而模型目录尚未复核。
+
+内容变化不会被不可靠的网页抓取自动写成新价格。应由维护者核对官方价格/能力后更新 `models`，再递增 `routingPolicy.modelCatalogRevision`；该动作解除 `model_catalog_review_required`。这样可以避免以过期价格自动执行。
+
 `authorization` 包含 `mode`、`expiresAt`、`providers`、`models`、`maxStepCost`、`maxProjectCost`、`approvedStepIds` 与 `blockedActions`。`per_step` 必须把待执行步骤 ID 放入 `approvedStepIds`；`budget_auto` 和 `full_auto` 必须同时满足全部预算与白名单限制。`publish`、`delete`、`permission`、`security` 永远要求对应步骤 ID 的显式批准。
 
 ## 平台边界
